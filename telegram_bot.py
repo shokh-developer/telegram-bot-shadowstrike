@@ -1,4 +1,5 @@
 import os
+import asyncio
 import requests
 import json
 import threading
@@ -465,6 +466,12 @@ async def topup_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     if not BOT_TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN topilmadi")
+    # Python 3.14+: default event loop is not created automatically in main thread.
+    # PTB run_polling() expects a current event loop.
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
     _start_health_server()
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start_cmd))
